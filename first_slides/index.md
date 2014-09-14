@@ -1,0 +1,69 @@
+---
+title       : ASCVD Risk Calculator
+subtitle    : Course Project for Developing Data Products Class
+author      : Michael Lee
+job         : Department of Internal Medicine, Fontana Medical Center
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : [mathjax]     # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+knit        : slidify::knit2slides
+---
+
+## ASCVD Risk Calculator
+
+1. The ASCVD Risk Calculator, also known as Pooled Cohort Risk Equations, was developed in 2013 by the American College of Cardiology and American Heart Association in collaboration with National Heart, Lung, and Blood Institute and other specialty societies.
+2. The equations were derived from multivariate regression analysis of pooled datasets from Atherosclerosis Risk in Communities Study, Cardiovascular Health Study, and the Coronary Artery Risk Development in Young Adults Study, combined with the Framingham Original and Offspring Study cohorts.
+3. It is complex equations with different regression coefficients for different races and genders.  It also involves log transformation for continuous variables and interaction of age with other variables.
+4. Final risk calculation used the equation $${1 - S^a}$$ where a = exp(sum product - mean), S is mean 10-year survival specific for each race and gender.
+
+--- .class #id 
+
+## ASCVD Function
+
+```r
+ASCVD <- function(gender, race, treated, age, tchol, hdl, sbp, smoking, dm) {
+     ##Coefficients are different for different gender, race or treatment status
+     if ((gender == 0) & (race == 0) & (treated == FALSE)) {Coef <- c(-29.799,4.884,13.540,-3.114,-13.578,3.149,1.957,0,7.574, -1.665,0.661,-29.18, 0.9665)} 
+     if ((gender == 0) & (race == 0) & (treated == TRUE))  {Coef <- c(-29.799,4.884,13.540,-3.114,-13.578,3.149,2.019,0,7.574, -1.665,0.661,-29.18, 0.9665)}
+     if ((gender == 0) & (race == 1) & (treated == FALSE)) {Coef <- c(17.114,0,0.94,0,-18.920,4.475,27.820,-6.087,0.691,0,0.874,86.61, 0.9533)}
+     if ((gender == 0) & (race == 1) & (treated == TRUE)) {Coef <- c(17.114,0,0.94,0,-18.920,4.475,29.291,-6.432,0.691,0,0.874,86.61, 0.9533)}
+     if ((gender == 1) & (race == 0) & (treated == FALSE)) {Coef <- c(12.344,0,11.853,-2.664,-7.990,1.769,1.764,0,7.837,-1.795,0.658,61.18,0.9144)}
+     if ((gender == 1) & (race == 0) & (treated == TRUE)) {Coef <- c(12.344,0,11.853,-2.664,-7.990,1.769,1.797,0,7.837,-1.795,0.658,61.18,0.9144)}
+     if ((gender == 1) & (race == 1) & (treated == FALSE)) {Coef <- c(2.469,0,0.302,0,-0.307,0,1.809,0,0.549,0,0.645,19.54,0.8954)}
+     if ((gender == 1) & (race == 1) & (treated == TRUE)) {Coef <- c(2.469,0,0.302,0,-0.307,0,1.916,0,0.549,0,0.645,19.54,0.8954)}
+     ##Transformed variables
+     TransVar <- c(log(age), (log(age)^2), log(tchol), log(age)*log(tchol),log(hdl), log(age)*log(hdl), log(sbp),
+                   log(age)*log(sbp),smoking, log(age)*smoking, dm)
+     ##sum of the transformed variables multiplied by corresponding coefficients
+     tot <- sum(Coef[1:11]*TransVar)
+     ##Calculation of risk
+     a <- exp(tot - Coef[12]); risk <- paste(round((1 - (Coef[13]^a))*100,1),"%")
+     return(risk)} ##For complete code, see ASCVD.R in Github
+```
+
+--- .class #id
+
+## Example of Risk Calculation
+1. If the individual is a female (gender = 0), White (race = 0), not on blood pressure medication (treated = FALSE), age 55, total cholesterol 235, HDL cholesterol 40, systolic blood pressure 125, no smoking (smoking = 0) and no diabetes (dm = 0), the calculated risk would result from the following code:
+
+```r
+risk <- ASCVD(0, 0, FALSE, 55, 235, 40, 125, 0, 0)
+print(risk)
+```
+
+```
+## [1] "3 %"
+```
+2. There were some concerns about overestimating the risks in certain population and possibility of overtreatment, this is the best calculator available at this time.
+3. Despite the controversy, this risk calculator has been generally accepted by the medical community.
+
+--- .class #id
+
+## References
+1. 2013 ACC/AHA Guideline on the Assessment of Cardiovascular Risk. A Report of the American College or Cardiology/American Heart Association Task Force on Practice Guidelines. [Circulation. 2014; 129:S49-S73]("http://circ.ahajournals.org/content/129/25_suppl_2/S49")
+
+2. Muntner et.al. Validation of the Atherosclerotic Cardiovascular Disease Pooled Cohort Risk Equations. [JAMA. 2014; 311(14): 1406-1415]("http://jama.jamanetwork.com/article.aspx?articleid=1853203")
+
+3. [Michael O'Riordan. New Cardiovascular Disease Risk Calculator Debated Again]("http://www.medscape.com/viewarticle/817814")

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ASCVD Risk Calculator</title>
+  <meta charset="utf-8">
+  <meta name="description" content="ASCVD Risk Calculator">
+  <meta name="author" content="Michael Lee">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>ASCVD Risk Calculator</h1>
+    <h2>Course Project for Developing Data Products Class</h2>
+    <p>Michael Lee<br/>Department of Internal Medicine, Fontana Medical Center</p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>ASCVD Risk Calculator</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li>The ASCVD Risk Calculator, also known as Pooled Cohort Risk Equations, was developed in 2013 by the American College of Cardiology and American Heart Association in collaboration with National Heart, Lung, and Blood Institute and other specialty societies.</li>
+<li>The equations were derived from multivariate regression analysis of pooled datasets from Atherosclerosis Risk in Communities Study, Cardiovascular Health Study, and the Coronary Artery Risk Development in Young Adults Study, combined with the Framingham Original and Offspring Study cohorts.</li>
+<li>It is complex equations with different regression coefficients for different races and genders.  It also involves log transformation for continuous variables and interaction of age with other variables.</li>
+<li>Final risk calculation used the equation \[{1 - S^a}\] where a = exp(sum product - mean), S is mean 10-year survival specific for each race and gender.</li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>ASCVD Function</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">ASCVD &lt;- function(gender, race, treated, age, tchol, hdl, sbp, smoking, dm) {
+     ##Coefficients are different for different gender, race or treatment status
+     if ((gender == 0) &amp; (race == 0) &amp; (treated == FALSE)) {Coef &lt;- c(-29.799,4.884,13.540,-3.114,-13.578,3.149,1.957,0,7.574, -1.665,0.661,-29.18, 0.9665)} 
+     if ((gender == 0) &amp; (race == 0) &amp; (treated == TRUE))  {Coef &lt;- c(-29.799,4.884,13.540,-3.114,-13.578,3.149,2.019,0,7.574, -1.665,0.661,-29.18, 0.9665)}
+     if ((gender == 0) &amp; (race == 1) &amp; (treated == FALSE)) {Coef &lt;- c(17.114,0,0.94,0,-18.920,4.475,27.820,-6.087,0.691,0,0.874,86.61, 0.9533)}
+     if ((gender == 0) &amp; (race == 1) &amp; (treated == TRUE)) {Coef &lt;- c(17.114,0,0.94,0,-18.920,4.475,29.291,-6.432,0.691,0,0.874,86.61, 0.9533)}
+     if ((gender == 1) &amp; (race == 0) &amp; (treated == FALSE)) {Coef &lt;- c(12.344,0,11.853,-2.664,-7.990,1.769,1.764,0,7.837,-1.795,0.658,61.18,0.9144)}
+     if ((gender == 1) &amp; (race == 0) &amp; (treated == TRUE)) {Coef &lt;- c(12.344,0,11.853,-2.664,-7.990,1.769,1.797,0,7.837,-1.795,0.658,61.18,0.9144)}
+     if ((gender == 1) &amp; (race == 1) &amp; (treated == FALSE)) {Coef &lt;- c(2.469,0,0.302,0,-0.307,0,1.809,0,0.549,0,0.645,19.54,0.8954)}
+     if ((gender == 1) &amp; (race == 1) &amp; (treated == TRUE)) {Coef &lt;- c(2.469,0,0.302,0,-0.307,0,1.916,0,0.549,0,0.645,19.54,0.8954)}
+     ##Transformed variables
+     TransVar &lt;- c(log(age), (log(age)^2), log(tchol), log(age)*log(tchol),log(hdl), log(age)*log(hdl), log(sbp),
+                   log(age)*log(sbp),smoking, log(age)*smoking, dm)
+     ##sum of the transformed variables multiplied by corresponding coefficients
+     tot &lt;- sum(Coef[1:11]*TransVar)
+     ##Calculation of risk
+     a &lt;- exp(tot - Coef[12]); risk &lt;- paste(round((1 - (Coef[13]^a))*100,1),&quot;%&quot;)
+     return(risk)} ##For complete code, see ASCVD.R in Github
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Example of Risk Calculation</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li>If the individual is a female (gender = 0), White (race = 0), not on blood pressure medication (treated = FALSE), age 55, total cholesterol 235, HDL cholesterol 40, systolic blood pressure 125, no smoking (smoking = 0) and no diabetes (dm = 0), the calculated risk would result from the following code:</li>
+</ol>
+
+<pre><code class="r">risk &lt;- ASCVD(0, 0, FALSE, 55, 235, 40, 125, 0, 0)
+print(risk)
+</code></pre>
+
+<pre><code>## [1] &quot;3 %&quot;
+</code></pre>
+
+<ol>
+<li>There were some concerns about overestimating the risks in certain population and possibility of overtreatment, this is the best calculator available at this time.</li>
+<li>Despite the controversy, this risk calculator has been generally accepted by the medical community.</li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>References</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li><p>2013 ACC/AHA Guideline on the Assessment of Cardiovascular Risk. A Report of the American College or Cardiology/American Heart Association Task Force on Practice Guidelines. <a href="%22http://circ.ahajournals.org/content/129/25_suppl_2/S49%22">Circulation. 2014; 129:S49-S73</a></p></li>
+<li><p>Muntner et.al. Validation of the Atherosclerotic Cardiovascular Disease Pooled Cohort Risk Equations. <a href="%22http://jama.jamanetwork.com/article.aspx?articleid=1853203%22">JAMA. 2014; 311(14): 1406-1415</a></p></li>
+<li><p><a href="%22http://www.medscape.com/viewarticle/817814%22">Michael O&#39;Riordan. New Cardiovascular Disease Risk Calculator Debated Again</a></p></li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='ASCVD Risk Calculator'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='ASCVD Function'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Example of Risk Calculation'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='References'>
+         4
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+      }
+    });
+  </script>
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script> -->
+  <script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
