@@ -2,7 +2,7 @@ require(shiny)
 shinyUI(fluidPage(
      headerPanel("What is your risk of developing cardiovascular disease in 10 years?"),
      sidebarPanel(
-          h3("ASCVD Calculator"),
+          h3("ASCVD Risk Calculator"),
           p("All fields must be filled out.", style = "color:red"),
           radioButtons("gender", "Gender:", c("Female" = 0, "Male" = 1), inline = TRUE),
           radioButtons("race", "Race:", c("White" = 0, "African American" = 1, 
