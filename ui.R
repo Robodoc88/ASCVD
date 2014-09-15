@@ -31,7 +31,7 @@ shinyUI(fluidPage(
             developed from multivariate regression analysis of pooled datasets from Atherosclerosis
             Risk in Communities Study, Cardiovascular Health Study, and the Coronary
             Artery Risk Development in Young Adults Study, combined with the Framingham
-            Original and Offspring Study cohorts.  A complex equation, with different
+            Original and Offspring Study cohorts.  A complex equation, with different regression
             coefficients for different race and gender, log transformation of continuous
             variables and exponential calculation, it is virtually impossible to calculate
             without a computer.  Using the client-server interface of Shiny package in R, this
