@@ -11,16 +11,17 @@ mode        : selfcontained # {standalone, draft}
 knit        : slidify::knit2slides
 ---
 
-## ASCVD Risk Calculator
+## ASCVD Risk Calculator App
 
 1. The ASCVD Risk Calculator, also known as Pooled Cohort Risk Equations, was developed in 2013 by the American College of Cardiology and American Heart Association in collaboration with National Heart, Lung, and Blood Institute and other specialty societies.
 2. The equations were derived from multivariate regression analysis of pooled datasets from Atherosclerosis Risk in Communities Study, Cardiovascular Health Study, and the Coronary Artery Risk Development in Young Adults Study, combined with the Framingham Original and Offspring Study cohorts.
-3. It is complex equations with different regression coefficients for different races and genders.  It also involves log transformation for continuous variables and interaction of age with other variables.
-4. Final risk calculation used the equation $${1 - S^a}$$ where a = exp(sum product - mean), S is mean 10-year survival specific for each race and gender.
+3. It is complex equations with different regression coefficients for different races and genders.  It also involves log transformation for continuous variables and interaction of age with other variables. It is impossible to calculate without a computer.
+4. My app takes advantage of Shiny R package and its client-server capabilities, and it made the calculation very simple using ASCVD function in server side.
+5. In my app, all you need to do is to fill in the required fields, and the app will calculate you your 10-year ASCVD risk as well as the risk if you optimize your risk factors.  The web address is [robodoc88.shinyapps.io/ascvd/](https://robodoc88.shinyapps.io/ascvd/)
 
 --- .class #id 
 
-## ASCVD Function
+## ASCVD Function is the key
 ```{r echo=TRUE}
 ASCVD <- function(gender, race, treated, age, tchol, hdl, sbp, smoking, dm) {
      ##Coefficients are different for different gender, race or treatment status
@@ -45,19 +46,19 @@ ASCVD <- function(gender, race, treated, age, tchol, hdl, sbp, smoking, dm) {
 --- .class #id
 
 ## Example of Risk Calculation
-1. If the individual is a female (gender = 0), White (race = 0), not on blood pressure medication (treated = FALSE), age 55, total cholesterol 235, HDL cholesterol 40, systolic blood pressure 125, no smoking (smoking = 0) and no diabetes (dm = 0), the calculated risk would result from the following code:
+1. If you entered female (gender = 0), White (race = 0), not on blood pressure medication (treated = FALSE), age 55, total cholesterol 235, HDL cholesterol 40, systolic blood pressure 125, no smoking (smoking = 0) and no diabetes (dm = 0), the calculated risk would result from the following code:
 ```{r echo=TRUE}
 risk <- ASCVD(0, 0, FALSE, 55, 235, 40, 125, 0, 0)
 print(risk)
 ```
-2. There were some concerns about overestimating the risks in certain population and possibility of overtreatment, this is the best calculator available at this time.
-3. Despite the controversy, this risk calculator has been generally accepted by the medical community.
+2. Although there were some concerns about overestimation of the risks in certain population leading to overtreatment, this is the best calculator available at this time.
+3. Despite the controversy, this risk calculator has been generally accepted by the medical community and is widely used.
 
 --- .class #id
 
 ## References
-1. 2013 ACC/AHA Guideline on the Assessment of Cardiovascular Risk. A Report of the American College or Cardiology/American Heart Association Task Force on Practice Guidelines. [Circulation. 2014; 129:S49-S73]("http://circ.ahajournals.org/content/129/25_suppl_2/S49")
+1. 2013 ACC/AHA Guideline on the Assessment of Cardiovascular Risk. A Report of the American College or Cardiology/American Heart Association Task Force on Practice Guidelines. [Circulation. 2014; 129:S49-S73](http://circ.ahajournals.org/content/129/25_suppl_2/S49)
 
-2. Muntner et.al. Validation of the Atherosclerotic Cardiovascular Disease Pooled Cohort Risk Equations. [JAMA. 2014; 311(14): 1406-1415]("http://jama.jamanetwork.com/article.aspx?articleid=1853203")
+2. Muntner et.al. Validation of the Atherosclerotic Cardiovascular Disease Pooled Cohort Risk Equations. [JAMA. 2014; 311(14): 1406-1415](http://jama.jamanetwork.com/article.aspx?articleid=1853203)
 
-3. [Michael O'Riordan. New Cardiovascular Disease Risk Calculator Debated Again]("http://www.medscape.com/viewarticle/817814")
+3. [http://tools.cardiosource.org/ASCVD-Risk-Estimator/](http://tools.cardiosource.org/ASCVD-Risk-Estimator/)
